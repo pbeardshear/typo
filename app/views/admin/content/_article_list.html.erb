@@ -1,12 +1,12 @@
 <%= render_void_table(@articles.size, 7)  %>
 <% for article in @articles %>
-<tr <%= alternate_class %>>
+<tr <%= alternate_class %> id="<%= article.title %>">
   <td class='first'>
     <%= link_to_edit h(article.title), article %>
     <%= show_actions article %>
   </td>
   <td><%= article.categories.map { |c| link_to h(c.name), {:controller => 'content', :action => 'index', "search[category]" => c.id}}.join(", ") %></td>
-  <td><%= author_link(article)%></td>
+  <td class="author"><%= author_link(article)%></td>
   <td>
     <%= format_date article.published_at %><br />
     <%= published_or_not article %>

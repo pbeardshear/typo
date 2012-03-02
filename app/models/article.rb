@@ -413,7 +413,32 @@ class Article < Content
   end
 
   def access_by?(user)
-    user.admin? || user_id == user.id
+    user.admin? || user_id == user.id || MergedAuthor.where( "user_id" => user.id, "article_id" => self.id ).any?
+  end
+  
+  def merge (invader)
+    # aggregate the authors and the article bodies
+    self.author += '.' + invader.author
+    self.body == '\n' + invader.body
+    
+    # merge the comments
+    Comment.find_all_by_article_id(invader.id).each do |comment|
+      comment.article = self
+      comment.save
+    end
+    
+    # check if the invader is a merged article
+    # if so, then point all of those merges to this article
+    MergedAuthor.where("article_id" => invader.user_id).each do |merge|
+      merge.article = self
+      merge.save
+    end
+    # add the merged articles entry
+    MergedAuthor.new("user_id" => invader.user_id, "article_id" => self.id).save
+    
+    # save the article and remove the old
+    self.save
+    invader.destroy
   end
 
   protected
