@@ -419,7 +419,7 @@ class Article < Content
   def merge (invader)
     # aggregate the authors and the article bodies
     self.author += '.' + invader.author
-    self.body == '\n' + invader.body
+    self.body += '\n' + invader.body
     
     # merge the comments
     Comment.find_all_by_article_id(invader.id).each do |comment|
@@ -429,8 +429,8 @@ class Article < Content
     
     # check if the invader is a merged article
     # if so, then point all of those merges to this article
-    MergedAuthor.where("article_id" => invader.user_id).each do |merge|
-      merge.article = self
+    MergedAuthor.where("article_id" => invader.id).each do |merge|
+      merge["article_id"] = self.id
       merge.save
     end
     # add the merged articles entry

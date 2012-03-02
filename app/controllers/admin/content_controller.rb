@@ -112,6 +112,27 @@ class Admin::ContentController < Admin::BaseController
     end
     render :text => nil
   end
+  
+  def merge
+    p 'I got to the merge function'
+    @article = Article.find(params[:id])
+    @merge_article = Article.find(params[:merge_id])
+    p 'articles', @article, @merge_article
+    unless @article.access_by? current_user
+      redirect_to :action => 'index'
+      flash[:error] = _("Error, you are not allowed to perform this action")
+      return
+    end
+    
+    unless @article and @merge_article
+      redirect_to :action => 'edit'
+      flash[:error] = _("Error, merge failed.")
+      return
+    end
+    @article.merge(@merge_article)
+    flash[:notice] = _("Article was successfully merged.")
+    redirect_to :action => 'index'
+  end
 
   protected
 
